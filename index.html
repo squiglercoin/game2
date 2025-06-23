@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Squigler Coin: Worm Wars</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+    header {
+      background: linear-gradient(to right, #1a1a1a, #333);
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 0 20px #ffd700;
+    }
+    header h1 {
+      font-size: 3rem;
+      color: #ffd700;
+    }
+    canvas {
+      display: block;
+      margin: 2rem auto;
+      border: 4px solid #ffd700;
+      box-shadow: 0 0 15px #ffd700;
+      border-radius: 10px;
+      background: #000;
+    }
+    button {
+      background: #ffd700;
+      color: #000;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      margin: 0.5rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255,215,0,0.5);
+    }
+    .info-section, .footer, .wallet-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #111;
+      box-shadow: 0 0 10px #ffd700;
+      margin-top: 2rem;
+      border-radius: 8px;
+    }
+    .info-section img, .wallet-section img {
+      max-width: 100px;
+      display: block;
+      margin: 1rem auto;
+    }
+    .wallet-section {
+      text-align: center;
+    }
+    .footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #bbb;
+      margin-bottom: 2rem;
+    }
+    a {
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🪖 Squigler Coin: Worm Wars 🐛</h1>
+    <p>Multiplayer blockchain shooter. Play. Battle. Earn. 🕹️</p>
+  </header>
+
+  <canvas id="squigGame" width="960" height="600"></canvas>
+
+  <div class="wallet-section">
+    <button onclick="startGame()">Start Game</button>
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <div id="walletDisplay"></div>
+  </div>
+
+  <div class="info-section">
+    <h2>💡 About $SQUIG</h2>
+    <img src="https://squiglercoin.github.io/websait2/images/squigler-coin.png" alt="$SQUIG Coin">
+    <p>$SQUIG is the next-gen meme + utility token fueling play-to-earn gaming, airdrops, and decentralized entertainment.</p>
+    <ul>
+      <li>📈 1 ETH = <strong>1,000,000 SQUIG</strong></li>
+      <li>💸 $16,000 Raised</li>
+      <li>🔗 Contract: 0x2e4D74F8b36Ef4d38c9679A9EB451D9a25af40ac</li>
+      <li>🌐 <a href="https://squiglercoin.github.io/squigcoin/" target="_blank">Presale Page</a></li>
+      <li>🐦 <a href="https://twitter.com/SquiglerCoin" target="_blank">Follow us on Twitter</a></li>
+      <li>🎮 Try our games, compete for real $SQUIG rewards</li>
+    </ul>
+    <p><strong>🚨 Free Trial Access</strong> — Full experience unlock: $15/month</p>
+  </div>
+
+  <div class="footer">
+    &copy; 2025 SquiglerCoin. Built for gamers. Designed for crypto warriors.
+  </div>
+
+  <script>
+    const canvas = document.getElementById("squigGame");
+    const ctx = canvas.getContext("2d");
+    let player = { x: 460, y: 520, width: 50, height: 50 };
+    let bullets = [], enemies = [], score = 0, gameOn = false;
+
+    function drawPlayer() {
+      ctx.fillStyle = '#ffd700';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    function drawBullets() {
+      ctx.fillStyle = '#00ff00';
+      bullets.forEach(b => ctx.fillRect(b.x, b.y, 6, 12));
+    }
+
+    function drawEnemies() {
+      ctx.fillStyle = '#ff4444';
+      enemies.forEach(e => ctx.fillRect(e.x, e.y, 40, 40));
+    }
+
+    function updateBullets() {
+      bullets.forEach(b => b.y -= 6);
+      bullets = bullets.filter(b => b.y > 0);
+    }
+
+    function updateEnemies() {
+      enemies.forEach(e => e.y += 2);
+      enemies = enemies.filter(e => e.y < canvas.height);
+    }
+
+    function detectHits() {
+      bullets.forEach((b, i) => {
+        enemies.forEach((e, j) => {
+          if (b.x > e.x && b.x < e.x + 40 && b.y > e.y && b.y < e.y + 40) {
+            bullets.splice(i, 1);
+            enemies.splice(j, 1);
+            score++;
+          }
+        });
+      });
+    }
+
+    function drawScore() {
+      ctx.fillStyle = '#fff';
+      ctx.font = '18px Arial';
+      ctx.fillText("Score: " + score, 10, 25);
+    }
+
+    function gameLoop() {
+      if (!gameOn) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlayer();
+      drawBullets();
+      drawEnemies();
+      drawScore();
+      updateBullets();
+      updateEnemies();
+      detectHits();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function spawnEnemies() {
+      if (!gameOn) return;
+      enemies.push({ x: Math.random() * (canvas.width - 40), y: 0 });
+      setTimeout(spawnEnemies, 900);
+    }
+
+    function startGame() {
+      bullets = [];
+      enemies = [];
+      score = 0;
+      gameOn = true;
+      gameLoop();
+      spawnEnemies();
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && player.x > 0) player.x -= 20;
+      if (e.key === "ArrowRight" && player.x + player.width < canvas.width) player.x += 20;
+      if (e.key === " ") bullets.push({ x: player.x + player.width / 2, y: player.y });
+    });
+
+    async function connectWallet() {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+          document.getElementById("walletDisplay").textContent = "Wallet connected: " + accounts[0];
+        } catch (err) {
+          alert("Wallet connection failed.");
+        }
+      } else {
+        alert("Please install MetaMask to connect your wallet.");
+      }
+    }
+  </script>
+</body>
+</html>
